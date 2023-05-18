@@ -12,7 +12,7 @@ from skimage import io as img
 from sklearn.cluster import KMeans
 
 # custom weights initialization called on netG and netD
-from SinGAN.run_train.imresize import imresize
+from imresize import imresize
 
 
 

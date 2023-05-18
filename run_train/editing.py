@@ -1,9 +1,9 @@
 from config import get_arguments
-from SinGAN.manipulate import *
-from SinGAN.training import *
-from SinGAN.imresize import imresize
-from SinGAN.imresize import imresize_to_shape
-import SinGAN.functions as functions
+from manipulate import *
+from training import *
+from imresize import imresize
+from imresize import imresize_to_shape
+import functions
 
 
 if __name__ == '__main__':

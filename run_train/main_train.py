@@ -1,8 +1,8 @@
 import os
-from SinGAN.run_train import functions
-from SinGAN.run_train.manipulate import SinGAN_generate
-from SinGAN.run_train.training import train
-from SinGAN.run_train.config import get_arguments
+import functions
+from manipulate import SinGAN_generate
+from training import train
+from config import get_arguments
 
 
 '''

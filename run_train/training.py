@@ -5,8 +5,8 @@ import torch.utils.data
 import math
 import matplotlib.pyplot as plt
 
-from SinGAN.run_train import functions, models
-from SinGAN.run_train.imresize import imresize
+import functions, models
+from imresize import imresize
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

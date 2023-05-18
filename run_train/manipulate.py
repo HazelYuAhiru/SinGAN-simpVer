@@ -8,8 +8,8 @@ import numpy as np
 import torch.nn as nn
 import torch.utils.data
 
-from SinGAN.run_train import functions
-from SinGAN.run_train.imresize import imresize
+import functions
+from imresize import imresize
 
 
 def generate_gif(Gs, Zs, reals, NoiseAmp, opt, alpha=0.1, beta=0.9, start_scale=2, fps=10):
