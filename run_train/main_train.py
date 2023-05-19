@@ -11,7 +11,7 @@ if __name__ == '__main__':
     parser.add_argument('--input_name', help='input image name', default='image.png')
     parser.add_argument('--mode', help='task to be done', default='train')
     opt = parser.parse_args()
-    #
+    
     opt = functions.post_config(opt)
     Gs = []
     Zs = []
@@ -26,11 +26,11 @@ if __name__ == '__main__':
             os.makedirs(dir2save)
         except OSError:
             pass
-        # 将图片读取成torch版的数据
+        # read image as data
         real = functions.read_image(opt)
-        # 将图片适配尺寸
+        # adjust size 
         functions.adjust_scales2image(real, opt)
-        # 开始训练模型 opt 手动输入的参数
+        # train model based on given args
         train(opt, Gs, Zs, reals, NoiseAmp)
-        # 根据模型生成图片  生成具有任意大小和比例的新图像
+        # generate new image based on trained model
         SinGAN_generate(Gs, Zs, reals, NoiseAmp, opt)

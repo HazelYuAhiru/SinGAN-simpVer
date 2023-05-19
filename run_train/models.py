@@ -1,14 +1,11 @@
 import torch
 import torch.nn as nn
 
-# Sequential一个有序的容器，神经网络模块将按照在传入构造器的顺序依次被添加到计算图中执行，同时以神经网络模块为元素的有序字典也可以作为传入参数。
 class ConvBlock(nn.Sequential):
     def __init__(self, in_channel, out_channel, ker_size, padd, stride):
         super(ConvBlock, self).__init__()
         self.add_module('conv', nn.Conv2d(in_channel, out_channel, kernel_size=ker_size, stride=stride, padding=padd)),
-        # 数据的归一化处理
         self.add_module('norm', nn.BatchNorm2d(out_channel)),
-        # LeakyReLU 所有负值赋予一个非零斜率
         self.add_module('LeakyRelu', nn.LeakyReLU(0.2, inplace=True))
 
 
@@ -40,13 +37,12 @@ class WDiscriminator(nn.Module):
         x = self.tail(x)
         return x
 
-# 多个全卷积GANs
+
 class GeneratorConcatSkip2CleanAdd(nn.Module):
     def __init__(self, opt):
         super(GeneratorConcatSkip2CleanAdd, self).__init__()
         self.is_cuda = torch.cuda.is_available()
         N = opt.nfc
-        # 数据卷积模块
         self.head = ConvBlock(opt.nc_im, N, opt.ker_size, opt.padd_size, 1)
         # GenConvTransBlock(opt.nc_z,N,opt.ker_size,opt.padd_size,opt.stride)
         self.body = nn.Sequential()

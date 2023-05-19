@@ -57,7 +57,7 @@ def imresize(im, scale, opt):
     # im = im[:, :, 0:int(scale * s[2]), 0:int(scale * s[3])]
     return im
 
-# 计算局部权重 调整大小
+# resize the shape
 def imresize_to_shape(im, output_shape, opt):
     im = torch2uint8(im)
     im = imresize_in(im, output_shape=output_shape)
@@ -66,7 +66,7 @@ def imresize_to_shape(im, output_shape, opt):
 
 
 def imresize_in(im, scale_factor=None, output_shape=None, kernel=None, antialiasing=True, kernel_shift_flag=False):
-    # 首先，通过从输出形状导出比例来标准化值并填充缺少的参数（如果需要），反之亦然
+    # based on output shape
     scale_factor, output_shape = fix_scale_and_size(im.shape, output_shape, scale_factor)
 
     # For a given numeric kernel case, just do convolution and sub-sampling (downscaling only)
@@ -89,7 +89,7 @@ def imresize_in(im, scale_factor=None, output_shape=None, kernel=None, antialias
     # Sort indices of dimensions according to scale of each dimension. since we are going dim by dim this is efficient
     sorted_dims = np.argsort(np.array(scale_factor)).tolist()
 
-    # 迭代标注以计算局部权重，以便每次在一个方向上调整大小
+    
     out_im = np.copy(im)
     for dim in sorted_dims:
         # No point doing calculations for scale-factor 1. nothing will happen anyway
@@ -101,7 +101,6 @@ def imresize_in(im, scale_factor=None, output_shape=None, kernel=None, antialias
         weights, field_of_view = contributions(im.shape[dim], output_shape[dim], scale_factor[dim],
                                                method, kernel_width, antialiasing)
 
-        # 使用影响位置值和权重集计算沿此1 dim调整大小的结果
         out_im = resize_along_dim(out_im, dim, weights, field_of_view)
 
     return out_im

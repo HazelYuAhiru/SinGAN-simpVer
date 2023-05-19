@@ -25,7 +25,6 @@ def denorm(x):
 
 def norm(x):
     out = (x - 0.5) * 2
-    # 返回的value介于A、B之间，若value小于min，返回min，若大于max，返回max
     return out.clamp(-1, 1)
 
 
@@ -133,7 +132,7 @@ def move_to_cpu(t):
     t = t.to(torch.device('cpu'))
     return t
 
-# 计算梯度惩罚
+
 def calc_gradient_penalty(netD, real_data, fake_data, LAMBDA, device):
     # print real_data.size()
     alpha = torch.rand(1, 1)
@@ -146,7 +145,6 @@ def calc_gradient_penalty(netD, real_data, fake_data, LAMBDA, device):
     interpolates = torch.autograd.Variable(interpolates, requires_grad=True)
 
     disc_interpolates = netD(interpolates)
-    # 用到网络对输入变量的求导
     gradients = torch.autograd.grad(outputs=disc_interpolates, inputs=interpolates,
                                     grad_outputs=torch.ones(disc_interpolates.size()).to(device),
                                     # .cuda(), #if use_cuda else torch.ones(
@@ -181,7 +179,6 @@ def np2torch(x, opt):
     else:
         x = color.rgb2gray(x)
         x = x[:, :, None, None]
-        # 矩阵的转置
         x = x.transpose(3, 2, 0, 1)
     x = torch.from_numpy(x)
     if not (opt.not_cuda):
@@ -251,11 +248,10 @@ def adjust_scales2image_SR(real_, opt):
     opt.stop_scale = opt.num_scales - scale2stop
     return real
 
-# 创造真实图片的锥体
+
 def creat_reals_pyramid(real, reals, opt):
     real = real[:, 0:3, :, :]
     for i in range(0, opt.stop_scale + 1, 1):
-        # pow() 函数用来求 x 的 y 次幂（次方）  2的3次方
         scale = math.pow(opt.scale_factor, opt.stop_scale - i)
         curr_real = imresize(real, scale, opt)
         reals.append(curr_real)

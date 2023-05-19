@@ -15,12 +15,9 @@ def train(opt, Gs, Zs, reals, NoiseAmp):
     real_ = functions.read_image(opt)
     in_s = 0
     scale_num = 0
-    # 计算局部权重 调整大小
     real = imresize(real_, opt.scale1, opt)
-    # 创造真实图片的锥体
     reals = functions.creat_reals_pyramid(real, reals, opt)
     nfc_prev = 0
-    # 全卷积GANs组成的金字塔
     while scale_num < opt.stop_scale + 1:
         opt.nfc = min(opt.nfc_init * pow(2, math.floor(scale_num / 4)), 128)
         opt.min_nfc = min(opt.min_nfc_init * pow(2, math.floor(scale_num / 4)), 128)
@@ -38,12 +35,11 @@ def train(opt, Gs, Zs, reals, NoiseAmp):
 
         D_curr, G_curr = init_models(opt)
         if (nfc_prev == opt.nfc):
-            # 加载训练好的模型
+            # load trained model
             G_curr.load_state_dict(torch.load('%s/%d/netG.pth' % (opt.out_, scale_num - 1)))
             D_curr.load_state_dict(torch.load('%s/%d/netD.pth' % (opt.out_, scale_num - 1)))
 
         z_curr, in_s, G_curr = train_single_scale(D_curr, G_curr, reals, Gs, Zs, in_s, NoiseAmp, opt)
-        # 是否固定部分参数进行网络训练
         G_curr = functions.reset_grads(G_curr, False)
         G_curr.eval()
         D_curr = functions.reset_grads(D_curr, False)
@@ -75,20 +71,17 @@ def train_single_scale(netD, netG, reals, Gs, Zs, in_s, NoiseAmp, opt, centers=N
         opt.nzx = real.shape[2] + (opt.ker_size - 1) * (opt.num_layer)
         opt.nzy = real.shape[3] + (opt.ker_size - 1) * (opt.num_layer)
         pad_noise = 0
-    #     对Tensor使用0进行边界填充
     m_noise = nn.ZeroPad2d(int(pad_noise))
     m_image = nn.ZeroPad2d(int(pad_image))
 
     alpha = opt.alpha
 
     fixed_noise = functions.generate_noise([opt.nc_z, opt.nzx, opt.nzy], device=device)
-    # 返回一个大小为fill_value的张量
     z_opt = torch.full(fixed_noise.shape, 0, device=device)
     z_opt = m_noise(z_opt)
     # setup optimizer
     optimizerD = optim.Adam(netD.parameters(), lr=opt.lr_d, betas=(opt.beta1, 0.999))
     optimizerG = optim.Adam(netG.parameters(), lr=opt.lr_g, betas=(opt.beta1, 0.999))
-    # 按需调整学习率
     schedulerD = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizerD, milestones=[1600], gamma=opt.gamma)
     schedulerG = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizerG, milestones=[1600], gamma=opt.gamma)
 
@@ -97,7 +90,7 @@ def train_single_scale(netD, netG, reals, Gs, Zs, in_s, NoiseAmp, opt, centers=N
     D_real2plot = []
     D_fake2plot = []
     z_opt2plot = []
-    # 它是从噪声生成图像的
+    # generate img from noise
     for epoch in range(opt.niter):
         if (Gs == []) & (opt.mode != 'SR_train'):
             z_opt = functions.generate_noise([1, opt.nzx, opt.nzy], device=device)
@@ -174,7 +167,7 @@ def train_single_scale(netD, netG, reals, Gs, Zs, in_s, NoiseAmp, opt, centers=N
         errD2plot.append(errD.detach())
 
         ############################
-        # (2) Update G network: 最大化 D(G(z))
+        # (2) Update G network: maximize D(G(z))
         ###########################
 
         for j in range(opt.Gsteps):
@@ -320,7 +313,7 @@ def init_models(opt):
     netG = models.GeneratorConcatSkip2CleanAdd(opt).to(device)
     netG.apply(models.weights_init)
     if opt.netG != '':
-        # 加载模型
+        #load model
         netG.load_state_dict(torch.load(opt.netG))
     print(netG)
 
